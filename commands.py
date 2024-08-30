@@ -27,8 +27,8 @@ def process_command(message_content, toUserName):
         elif command == "/上传" and len(parts) == 3:
             photo_name = parts[1]
             album_name = parts[2]
-            upload_msg, wait_msg = upload(photo_name, album_name)
-            return upload_msg, wait_msg
+            upload_msg= upload(photo_name, album_name)
+            return upload_msg, None
 
         elif command == "/show" and len(parts) == 1:
             return show_1(), None
