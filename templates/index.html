@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>微信机器人控制台</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1400px;
+            height: 100%;
+            padding: 20px 30px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            display: flex;
+            justify-content: flex-end;
+            width: 100%;
+            padding: 10px 0;
+            box-sizing: border-box;
+        }
+
+        .theme-switch {
+            display: flex;
+            align-items: center;
+            margin-right: 30px;
+        }
+
+        .switch-label {
+            margin-right: 10px;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #888;
+            transition: 0.4s;
+            border-radius: 30px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        input:checked + .slider {
+            background-color: #4caf50;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+
+        .link {
+            color: #00aaff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        .link:hover {
+            color: #0088cc;
+        }
+
+        .link .icon {
+            font-size: 18px;
+            margin-right: 5px;
+        }
+
+        h1 {
+            margin: 30px 0;
+            color: #00ff99;
+            text-align: center;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            margin-top: 30px;
+            cursor: pointer;
+            background-color: #007acc;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            transition: background-color 0.3s, transform 0.2s;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            background-color: #005999;
+            transform: translateY(-2px);
+        }
+
+        #logs {
+            width: 85%;
+            max-width: 900px;
+            height: 350px;
+            overflow-y: auto;
+            background-color: #121212;
+            border: 1px solid #333;
+            margin-top: 25px;
+            padding: 15px;
+            white-space: pre-wrap;
+            color: #00ff00;
+            font-size: 16px;
+            line-height: 1.5;
+            transition: background-color 0.3s, color 0.3s;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #logs::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        #logs::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 5px;
+        }
+
+        #logs::-webkit-scrollbar-thumb:hover {
+            background: #777;
+        }
+
+        .control-buttons {
+            display: flex;
+            justify-content: flex-end;
+            width: 85%;
+            max-width: 900px;
+            margin-top: 10px;
+            gap: 5px;
+        }
+
+        .control-buttons button {
+            padding: 8px 16px;
+            font-size: 14px;
+            background-color: #555;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.2s;
+            position: relative;
+        }
+
+        .control-buttons button:hover {
+            background-color: #444;
+            transform: translateY(-1px);
+        }
+
+        .control-buttons button::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            top: -28px;
+            right: 50%;
+            transform: translateX(50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            opacity: 0;
+            white-space: nowrap;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .control-buttons button:hover::after {
+            opacity: 1;
+        }
+
+        .light-mode {
+            background-color: #f9f9f9;
+            color: #333333;
+        }
+
+        .light-mode #logs {
+            background-color: #f0f0f0;
+            color: #000000;
+        }
+
+        .light-mode .switch-label {
+            color: #333333;
+        }
+
+        .author-info {
+            margin-top: 40px;
+            color: #c5c5c5;
+            font-size: 16px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="dark-mode">
+    <div class="container">
+        <div class="header">
+            <div class="theme-switch">
+                <span class="switch-label">主题切换:</span>
+                <label class="switch">
+                    <input type="checkbox" id="themeToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <a class="link" href="https://blog.csdn.net/qq_71745595?spm=1000.2115.3001.5343" target="_blank">
+                <span class="icon">🔗</span>作者主页
+            </a>
+        </div>
+
+        <h1>微信机器人控制台</h1>
+        <button onclick="startBot()">启动机器人</button>
+        <div id="logs"></div>
+
+        <div class="control-buttons">
+            <button data-tooltip="清除日志内容" onclick="clearLogs()">Clear</button>
+            <button data-tooltip="将日志保存为文本文件" onclick="copyLogs()">Copy</button>
+        </div>
+
+        <div class="author-info">作者介绍：此处暂未开发</div>
+    </div>
+
+    <script>
+        function startBot() {
+            fetch('/start', { method: 'POST' })
+                .then(response => {
+                    if (response.ok) {
+                        alert('机器人已启动!');
+                        streamLogs();
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function streamLogs() {
+            const logContainer = document.getElementById('logs');
+            const eventSource = new EventSource('/logs');
+
+            eventSource.onmessage = function (event) {
+                logContainer.textContent += event.data + "\n";
+                logContainer.scrollTop = logContainer.scrollHeight;
+            };
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').textContent = '';
+        }
+
+        function copyLogs() {
+            const logs = document.getElementById('logs').textContent;
+            const blob = new Blob([logs], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = 'logs.txt';
+            link.click();
+            window.URL.revokeObjectURL(link.href);
+        }
+
+        const body = document.body;
+        const themeToggle = document.getElementById('themeToggle');
+
+        themeToggle.addEventListener('change', () => {
+            if (themeToggle.checked) {
+                body.classList.add('light-mode');
+                body.classList.remove('dark-mode');
+            } else {
+                body.classList.add('dark-mode');
+                body.classList.remove('light-mode');
+            }
+        });
+    </script>
+</body>
+</html>
